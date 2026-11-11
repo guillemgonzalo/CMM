@@ -1,4 +1,5 @@
 """Reading mod archives. `ModArchive` lets the installer ignore the container format."""
+
 import subprocess
 import tempfile
 import zipfile
@@ -42,8 +43,9 @@ class TarModArchive:
         self._source = path.name
         self._tmp = tempfile.TemporaryDirectory(prefix="cmm-")
         self._root = Path(self._tmp.name)
-        done = subprocess.run(["tar", "-xf", str(path), "-C", str(self._tmp.name)],
-                              capture_output=True, text=True)
+        done = subprocess.run(
+            ["tar", "-xf", str(path), "-C", str(self._tmp.name)], check=False, capture_output=True, text=True
+        )
         if done.returncode != 0:
             raise CmmError(f"cannot read {path.name}: {done.stderr.strip() or 'tar failed'}")
 
@@ -52,8 +54,11 @@ class TarModArchive:
         return self._source
 
     def members(self) -> list[str]:
-        return sorted(p.relative_to(self._root).as_posix() for p in self._root.rglob("*")
-                      if p.is_file() and not p.is_symlink())
+        return sorted(
+            p.relative_to(self._root).as_posix()
+            for p in self._root.rglob("*")
+            if p.is_file() and not p.is_symlink()
+        )
 
     def read(self, member: str) -> bytes:
         return (self._root / member).read_bytes()

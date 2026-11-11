@@ -3,6 +3,7 @@
 `PathMapper` is the abstraction (Strategy); the installer never knows about macOS specifics,
 so supporting another layout means adding a class, not editing the installer (open/closed).
 """
+
 from typing import Protocol
 
 from .errors import UnsafeArchive

@@ -1,13 +1,19 @@
 import shutil
 import subprocess
 import zipfile
-from pathlib import Path
 
 import pytest
 
 from cmm.archive import ZipModArchive, open_archive
 from cmm.cli import build_installer
-from cmm.errors import AlreadyInstalled, CmmError, ConflictError, NotAGameFolder, UnsafeArchive, UnsupportedFormat
+from cmm.errors import (
+    AlreadyInstalled,
+    CmmError,
+    ConflictError,
+    NotAGameFolder,
+    UnsafeArchive,
+    UnsupportedFormat,
+)
 from cmm.installer import default_name
 from cmm.mapping import MacPathMapper
 
@@ -65,7 +71,10 @@ def test_not_a_game_folder(tmp_path):
 
 
 def test_default_name():
-    assert default_name("Casual Day Outfit - Archive XL-24351-1-1-1778009202.zip") == "Casual Day Outfit - Archive XL"
+    assert (
+        default_name("Casual Day Outfit - Archive XL-24351-1-1-1778009202.zip")
+        == "Casual Day Outfit - Archive XL"
+    )
 
 
 def _tree(tmp_path):

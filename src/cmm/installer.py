@@ -1,4 +1,5 @@
 """Use cases: install / uninstall / list. Depends only on abstractions, never on zip or JSON."""
+
 import re
 import time
 from pathlib import Path
@@ -10,8 +11,20 @@ from .model import InstalledMod, InstallReport
 from .store import ManifestStore
 
 # Base folders the game expects; never removed even when a mod's removal leaves them empty.
-KEEP = frozenset({"archive", "archive/Mac", "archive/Mac/mod", "r6", "r6/scripts", "r6/tweaks",
-                  "r6/config", "red4ext", "red4ext/plugins", "engine"})
+KEEP = frozenset(
+    {
+        "archive",
+        "archive/Mac",
+        "archive/Mac/mod",
+        "r6",
+        "r6/scripts",
+        "r6/tweaks",
+        "r6/config",
+        "red4ext",
+        "red4ext/plugins",
+        "engine",
+    }
+)
 
 
 def default_name(source: str) -> str:

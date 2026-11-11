@@ -1,4 +1,5 @@
 """Plain data types shared by all layers."""
+
 from dataclasses import dataclass, field
 
 

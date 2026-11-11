@@ -1,4 +1,5 @@
 """Composition root: wires concrete classes together and translates errors to exit codes."""
+
 import argparse
 import os
 import sys
@@ -19,8 +20,12 @@ def build_installer(game: Path) -> ModInstaller:
 
 def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="cmm", description="Cyberpunk Mod Manager for macOS")
-    ap.add_argument("--game", type=Path, default=Path(os.environ.get("CMM_GAME", DEFAULT_GAME)),
-                    help="game folder (default: $CMM_GAME or %(default)s)")
+    ap.add_argument(
+        "--game",
+        type=Path,
+        default=Path(os.environ.get("CMM_GAME", DEFAULT_GAME)),
+        help="game folder (default: $CMM_GAME or %(default)s)",
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
     i = sub.add_parser("install", help="install a mod (.zip, .7z or .rar)")
     i.add_argument("zip", type=Path)

@@ -1,4 +1,5 @@
 """Persistence of what is installed. Swappable behind `ManifestStore` (dependency inversion)."""
+
 import json
 from pathlib import Path
 from typing import Protocol
@@ -23,6 +24,8 @@ class JsonManifestStore:
 
     def save(self, mods: dict[str, InstalledMod]) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        raw = {n: {"files": list(m.files), "source": m.source, "installed_at": m.installed_at}
-               for n, m in sorted(mods.items())}
+        raw = {
+            n: {"files": list(m.files), "source": m.source, "installed_at": m.installed_at}
+            for n, m in sorted(mods.items())
+        }
         self._path.write_text(json.dumps(raw, indent=1))
