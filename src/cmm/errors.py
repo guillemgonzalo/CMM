@@ -25,3 +25,7 @@ class ConflictError(CmmError):
     def __init__(self, conflicts: dict[str, str]):
         self.conflicts = conflicts
         super().__init__(f"{len(conflicts)} conflicting file(s); use --force to overwrite")
+
+
+class UnsupportedFormat(CmmError):
+    pass

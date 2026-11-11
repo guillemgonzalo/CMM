@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 
-from .archive import ZipModArchive
+from .archive import open_archive
 from .errors import CmmError, ConflictError
 from .installer import ModInstaller
 from .mapping import MacPathMapper
@@ -22,7 +22,7 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--game", type=Path, default=Path(os.environ.get("CMM_GAME", DEFAULT_GAME)),
                     help="game folder (default: $CMM_GAME or %(default)s)")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    i = sub.add_parser("install", help="install a mod zip")
+    i = sub.add_parser("install", help="install a mod (.zip, .7z or .rar)")
     i.add_argument("zip", type=Path)
     i.add_argument("--name")
     i.add_argument("--force", action="store_true", help="overwrite files that already exist")
@@ -35,7 +35,7 @@ def parser() -> argparse.ArgumentParser:
 def run(args: argparse.Namespace) -> None:
     installer = build_installer(args.game)
     if args.cmd == "install":
-        report = installer.install(ZipModArchive(args.zip), args.name, args.force)
+        report = installer.install(open_archive(args.zip), args.name, args.force)
         print(f"installed {report.mod.name}: {len(report.mod.files)} files")
         for s in report.skipped:
             print(f"  skipped (Windows-only or not a game file): {s}")
