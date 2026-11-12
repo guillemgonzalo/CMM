@@ -26,6 +26,6 @@ class JsonManifestStore:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         raw = {
             n: {"files": list(m.files), "source": m.source, "installed_at": m.installed_at}
-            for n, m in sorted(mods.items())
+            for n, m in mods.items()
         }
         self._path.write_text(json.dumps(raw, indent=1))

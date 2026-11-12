@@ -1,0 +1,1 @@
+Drop mod archives (.zip, .7z, .rar) here, then run `cmm` and pick Install.

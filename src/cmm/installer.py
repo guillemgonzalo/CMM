@@ -40,14 +40,16 @@ class ModInstaller:
         self._game, self._mapper, self._store = game, mapper, store
 
     def installed(self) -> list[InstalledMod]:
-        return sorted(self._store.load().values(), key=lambda m: m.name)
+        return list(self._store.load().values())  # load order
 
-    def install(self, archive: ModArchive, name: str | None = None, force: bool = False) -> InstallReport:
+    def install(
+        self, archive: ModArchive, name: str | None = None, force: bool = False, skip: tuple[str, ...] = ()
+    ) -> InstallReport:
         mods = self._store.load()
         name = name or default_name(archive.source)
         if name in mods:
             raise AlreadyInstalled(f"'{name}' is already installed; uninstall it first")
-        plan, skipped = self._plan(archive)
+        plan, skipped = self._plan(archive, skip)
         if not force:
             self._check_conflicts(plan.values(), mods)
         for member, rel in plan.items():
@@ -71,12 +73,39 @@ class ModInstaller:
         self._store.save(mods)
         return mod
 
-    def _plan(self, archive: ModArchive) -> tuple[dict[str, str], list[str]]:
+    def move(self, name: str, delta: int) -> None:
+        """Shift a mod's load priority by `delta` places, then renumber its archives."""
+        mods = self._store.load()
+        if name not in mods:
+            raise NotInstalled(f"not installed: {name}")
+        names = list(mods)
+        i = names.index(name)
+        j = max(0, min(len(names) - 1, i + delta))
+        names.insert(j, names.pop(i))
+        mods = {n: mods[n] for n in names}
+        for rank, n in enumerate(names):
+            mods[n] = self._prefix(mods[n], rank)
+        self._store.save(mods)
+
+    def _prefix(self, mod: InstalledMod, rank: int) -> InstalledMod:
+        # ponytail: a mod's own 3-digit "NNN_" prefix would be stripped too; rare.
+        files = []
+        for rel in mod.files:
+            p = Path(rel)
+            if rel.startswith("archive/Mac/mod/") and p.suffix == ".archive":
+                new = p.with_name(f"{rank:03d}_" + re.sub(r"^\d{3}_", "", p.name)).as_posix()
+                if new != rel:
+                    (self._game / rel).rename(self._game / new)
+                rel = new
+            files.append(rel)
+        return InstalledMod(mod.name, tuple(files), mod.source, mod.installed_at)
+
+    def _plan(self, archive: ModArchive, skip: tuple[str, ...] = ()) -> tuple[dict[str, str], list[str]]:
         plan: dict[str, str] = {}
         skipped: list[str] = []
         for member in archive.members():
             rel = self._mapper.map(member)
-            if rel is None:
+            if rel is None or rel.startswith(skip):
                 skipped.append(member)
             else:
                 plan[member] = rel

@@ -9,3 +9,10 @@ wheels/
 # Virtual environments
 .venv
 .pytest_cache/
+
+# user mods: keep the folder skeleton, ignore the archives
+mods/*
+!mods/DROP MODS HERE.txt
+!mods/installed/
+mods/installed/*
+!mods/installed/.gitkeep

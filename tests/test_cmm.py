@@ -117,3 +117,17 @@ def test_unsupported_and_corrupt(tmp_path):
     bad.write_bytes(b"not an archive")
     with pytest.raises(CmmError):
         open_archive(bad)
+
+
+def test_move_renumbers_archives_and_uninstall_stays_clean(game, tmp_path):
+    inst = build_installer(game)
+    for n in ("A", "B"):
+        p = tmp_path / f"{n}.zip"
+        with zipfile.ZipFile(p, "w") as z:
+            z.writestr(f"archive/pc/mod/{n}.archive", n)
+        inst.install(ZipModArchive(p))
+    inst.move("B", -1)
+    assert [m.name for m in inst.installed()] == ["B", "A"]
+    assert sorted(f.name for f in (game / "archive/Mac/mod").iterdir()) == ["000_B.archive", "001_A.archive"]
+    inst.uninstall("B")
+    assert [f.name for f in (game / "archive/Mac/mod").iterdir()] == ["001_A.archive"]
